@@ -1,1 +1,5 @@
-Readme ...
+What it does:
+
+- Fetches the newest 100 google news rss entries
+- visits each site and stays there fore some seconds
+- reloads the now newest 100 google news entries and continues
