@@ -38,6 +38,8 @@ public class WebViewController {
 		f.read();
 		urls = f.getUrls();
 
+		webView.setZoom(Defaults.ZOOM);
+
 		WebEngine engine = webView.getEngine();
 		engine.getLoadWorker().stateProperty().addListener(
 				new ChangeListener<State>() {
@@ -52,13 +54,17 @@ public class WebViewController {
 								urls = f.getUrls();
 								break;
 							}
-							int waitSeconds = ThreadLocalRandom.current().nextInt(5, 20);
+							int waitSeconds = ThreadLocalRandom.current().nextInt(Defaults.WAITSECONDSFROM, Defaults.WAITSECONDSTO);
 							logging("wait " + waitSeconds + " seconds for loading next page.");
 							timer.schedule(new TimerTask() {
 								@Override
 								public void run() {
 									Platform.runLater(() -> {
-										if(!urls.isEmpty()) engine.load(urls.remove(0));
+										if(!urls.isEmpty()) {
+											engine.loadContent("");
+											System.gc();
+											engine.load(urls.remove(0));
+										} // if
 									});
 								}
 							}, waitSeconds*1000);
