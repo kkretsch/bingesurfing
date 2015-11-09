@@ -17,7 +17,7 @@ import javafx.scene.web.WebView;
 public class WebViewController {
 	private Feeder f;
 	private List<String> urls;
-	private Timer timer;
+	private Timer timer=null;
 
 	@FXML
 	private WebView webView;
@@ -51,36 +51,9 @@ public class WebViewController {
 				new ChangeListener<State>() {
 					@Override public void changed(@SuppressWarnings("rawtypes") ObservableValue ov, State oldState, State newState) {
 
-						boolean doNextURL=false;
 						switch(newState) {
 						case SUCCEEDED:
 							logging("called");
-							doNextURL=true;
-							break;
-						case CANCELLED:
-							logging("cancelled");
-							doNextURL=true;
-							break;
-						case FAILED:
-							logging("failed");
-							doNextURL=true;
-							break;
-						case READY:
-							logging("ready");
-							break;
-						case RUNNING:
-							logging("running");
-							break;
-						case SCHEDULED:
-							textArea.clear();
-							logging("scheduled");
-							break;
-						default:
-							logging("??");
-							break;
-						} // switch
-
-						if(doNextURL) {
 							if(urls.isEmpty()) {
 								logging("fetching new feed data ...");
 								f.read();
@@ -101,10 +74,31 @@ public class WebViewController {
 									});
 								} // run
 							}, waitSeconds*1000);
-						} // if
+							break;
+						case CANCELLED:
+							logging("cancelled");
+							break;
+						case FAILED:
+							logging("failed");
+							break;
+						case READY:
+							logging("ready");
+							break;
+						case RUNNING:
+							logging("running");
+							break;
+						case SCHEDULED:
+							textArea.clear();
+							logging("scheduled");
+							break;
+						default:
+							logging("??");
+							break;
+						} // switch
 
 					}
 				});
+
 		engine.load(urls.remove(0));
 
 	}
