@@ -3,7 +3,9 @@ package xyz.bingesurfing;
 import java.io.IOException;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
+import java.util.Random;
 
 import com.sun.syndication.feed.synd.SyndEntry;
 import com.sun.syndication.feed.synd.SyndFeed;
@@ -30,6 +32,9 @@ public class Feeder {
 		} catch (IllegalArgumentException | FeedException | IOException e) {
 			e.printStackTrace();
 		}
+
+		long seed = System.nanoTime();
+		Collections.shuffle(urls, new Random(seed));
 	}
 
 	public List<String> getUrls() {
