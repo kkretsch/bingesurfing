@@ -31,6 +31,7 @@ public class WebViewController {
 	}
 
 	public void destroy() {
+		System.out.println("destroy");
 		if(null != timer) timer.cancel();
 	}
 
