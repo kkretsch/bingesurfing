@@ -17,6 +17,7 @@ import javafx.scene.web.WebView;
 public class WebViewController {
 	private Feeder f;
 	private List<String> urls;
+	private Timer timer;
 
 	@FXML
 	private WebView webView;
@@ -29,10 +30,14 @@ public class WebViewController {
 		textArea.appendText(s+"\n");
 	}
 
+	public void destroy() {
+		if(null != timer) timer.cancel();
+	}
+
 	@FXML
 	private void initialize()
 	{
-		Timer timer = new Timer();
+		timer = new Timer();
 
 		f = new Feeder();
 		f.read();
@@ -45,35 +50,19 @@ public class WebViewController {
 				new ChangeListener<State>() {
 					@Override public void changed(@SuppressWarnings("rawtypes") ObservableValue ov, State oldState, State newState) {
 
+						boolean doNextURL=false;
 						switch(newState) {
 						case SUCCEEDED:
 							logging("called");
-							if(urls.isEmpty()) {
-								logging("fetching new feed data ...");
-								f.read();
-								urls = f.getUrls();
-								break;
-							}
-							int waitSeconds = ThreadLocalRandom.current().nextInt(Defaults.WAITSECONDSFROM, Defaults.WAITSECONDSTO);
-							logging("wait " + waitSeconds + " seconds for loading next page.");
-							timer.schedule(new TimerTask() {
-								@Override
-								public void run() {
-									Platform.runLater(() -> {
-										if(!urls.isEmpty()) {
-											engine.loadContent("");
-											System.gc();
-											engine.load(urls.remove(0));
-										} // if
-									});
-								}
-							}, waitSeconds*1000);
+							doNextURL=true;
 							break;
 						case CANCELLED:
 							logging("cancelled");
+							doNextURL=true;
 							break;
 						case FAILED:
 							logging("failed");
+							doNextURL=true;
 							break;
 						case READY:
 							logging("ready");
@@ -90,9 +79,33 @@ public class WebViewController {
 							break;
 						} // switch
 
+						if(doNextURL) {
+							if(urls.isEmpty()) {
+								logging("fetching new feed data ...");
+								f.read();
+								urls = f.getUrls();
+							} // if
+
+							int waitSeconds = ThreadLocalRandom.current().nextInt(Defaults.WAITSECONDSFROM, Defaults.WAITSECONDSTO);
+							logging("wait " + waitSeconds + " seconds for loading next page.");
+							timer.schedule(new TimerTask() {
+								@Override
+								public void run() {
+									Platform.runLater(() -> {
+										if(!urls.isEmpty()) {
+											engine.loadContent("");
+											System.gc();
+											engine.load(urls.remove(0));
+										} // if
+									});
+								} // run
+							}, waitSeconds*1000);
+						} // if
+
 					}
 				});
 		engine.load(urls.remove(0));
+
 	}
 
 }
